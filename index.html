@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ПРОЕКТ: НУЛЕВОЙ ДЕНЬ | ZERO DAY</title>
+    <style>
+        /* --- CORE AESTHETICS --- */
+        body {
+            background-color: #050505;
+            color: #0f0;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        #terminal {
+            width: 800px;
+            height: 600px;
+            background-color: #000;
+            border: 2px solid #333;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        /* --- CRT EFFECTS --- */
+        #terminal::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .active {
+            display: flex;
+        }
+
+        h1 {
+            border-bottom: 1px solid #0f0;
+            padding-bottom: 10px;
+            text-shadow: 0 0 5px #0f0;
+            font-size: 24px;
+            margin-top: 0;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        /* --- UI ELEMENTS --- */
+        .btn {
+            background: transparent;
+            border: 1px solid #0f0;
+            color: #0f0;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 16px;
+            margin-top: 10px;
+            margin-right: 10px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 10px #0f0;
+        }
+
+        .input-field {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid #0f0;
+            color: #0f0;
+            font-family: inherit;
+            font-size: 24px;
+            width: 200px;
+            outline: none;
+            margin-top: 20px;
+            text-align: center;
+            letter-spacing: 5px;
+        }
+
+        /* --- SPECIAL EFFECTS --- */
+        .glitch {
+            animation: glitch 1s linear infinite;
+        }
+
+        @keyframes glitch {
+            2%, 64% { transform: translate(2px,0) skew(0deg); }
+            4%, 60% { transform: translate(-2px,0) skew(0deg); }
+            62% { transform: translate(0,0) skew(5deg); }
+        }
+
+        .danger {
+            color: #f00;
+            border-color: #f00;
+            text-shadow: 0 0 5px #f00;
+        }
+        
+        .danger-btn:hover {
+            background: #f00;
+            color: #fff;
+            box-shadow: 0 0 10px #f00;
+        }
+
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        #code-display {
+            font-size: 48px;
+            font-weight: bold;
+            text-align: center;
+            margin: 40px 0;
+            letter-spacing: 10px;
+            filter: blur(0px);
+            transition: filter 0.5s;
+        }
+        
+        .hidden-code {
+            filter: blur(10px) !important;
+            opacity: 0;
+        }
+
+        /* STATUS BARS */
+        .status-bar {
+            width: 100%;
+            height: 5px;
+            background: #333;
+            margin-top: auto;
+        }
+        .progress {
+            height: 100%;
+            background: #0f0;
+            width: 0%;
+            transition: width 0.5s;
+        }
+    </style>
+</head>
+<body>
+
+<div id="terminal">
+    <div class="hud">
+        <span>ID: GHOST_PROTOCOL</span>
+        <span>LOC: ODESA_NODE</span>
+        <span id="timer">SYS: STABLE</span>
+    </div>
+
+    <div id="screen-start" class="screen active">
+        <h1>// ПРОЕКТ: НУЛЕВОЙ ДЕНЬ</h1>
+        <p>СИСТЕМА ОБНАРУЖИЛА НЕСАНКЦИОНИРОВАННЫЙ ДОСТУП.</p>
+        <p>Вы — Призрак. Вас загнали в угол. Единственный выход — вперед.</p>
+        <br>
+        <p style="color: #888;">[ПРЕДУПРЕЖДЕНИЕ: ОДНА ОШИБКА ПРИВЕДЕТ К СТИРАНИЮ ЛИЧНОСТИ]</p>
+        <button class="btn" onclick="startGame()">ИНИЦИАЛИЗАЦИЯ</button>
+    </div>
+
+    <div id="screen-1" class="screen">
+        <h1>ЭТАП 1: ПРОБУЖДЕНИЕ</h1>
+        <p id="text-1"></p>
+        <div id="controls-1" style="display:none;">
+            <button class="btn" onclick="nextStage(2)">Принять вызов</button>
+        </div>
+    </div>
+
+    <div id="screen-2" class="screen">
+        <h1>ЭТАП 2: ДОПРОС</h1>
+        <p id="text-2"></p>
+        <div id="controls-2" style="display:none;">
+            <p><strong>КОНТАКТ:</strong> "Чтобы пройти защиту 'Цербера', ты должен мыслить как они. Скажи мне, Призрак... Если система идеальна, почему она требует постоянных обновлений?"</p>
+            <button class="btn" onclick="gameOver('Ошибка логики. Идеальная система статична. Вас вычислили.')">Потому что мир меняется.</button>
+            <button class="btn" onclick="nextStage(3)">Потому что она построена на лжи.</button>
+            <button class="btn" onclick="gameOver('Сентиментальность — признак слабости. Связь прервана.')">Чтобы защитить нас.</button>
+        </div>
+    </div>
+
+    <div id="screen-3" class="screen">
+        <h1>ЭТАП 3: РАЗВИЛКА</h1>
+        <p id="text-3"></p>
+        <div id="controls-3" style="display:none;">
+            <p>Вы получили доступ к протоколу "Судный День". Вы можете стереть глобальные базы долгов (Хаос) или передать ключи корпорации, чтобы спасти свою шкуру (Порядок).</p>
+            <button class="btn danger-btn" style="border-color:#f00; color:#f00;" onclick="gameOver('Вы предали идею. Корпорация стерла вас как свидетеля.')">Передать ключи (Спасти себя)</button>
+            <button class="btn" onclick="nextStage(4)">Стереть долги (Начать Нулевой День)</button>
+        </div>
+    </div>
+
+    <div id="screen-4" class="screen">
+        <h1>ЭТАП 4: ВЗЛОМ ВЕКА</h1>
+        <p>ВНИМАНИЕ. СИСТЕМА ЗАЩИТЫ "AEGIS" АКТИВИРОВАНА.</p>
+        <p>Для ручного ввода требуется одноразовый код доступа. Он появится на экране на <strong>3 секунды</strong>.</p>
+        <p>Запомните его. Второго шанса не будет.</p>
+        <button class="btn" onclick="showCode()">Я ГОТОВ</button>
+        <div id="code-area" style="display:none;">
+            <div id="code-display"></div>
+        </div>
+    </div>
+
+    <div id="screen-5" class="screen">
+        <h1 class="danger">ЭТАП 5: КРИТИЧЕСКИЙ ВВОД</h1>
+        <p>ВВЕДИТЕ КОД ДОСТУПА. ТАЙМЕР ЗАПУЩЕН.</p>
+        <input type="text" id="final-input" class="input-field" maxlength="5" autocomplete="off">
+        <br><br>
+        <button class="btn" onclick="checkCode()">ИСПОЛНИТЬ</button>
+    </div>
+
+    <div id="screen-fail" class="screen" style="justify-content: center; align-items: center; border: 2px solid red;">
+        <h1 style="color: red; border: none; font-size: 40px;">СИГНАЛ ПОТЕРЯН</h1>
+        <p id="fail-reason" style="color: red; text-align: center;"></p>
+        <button class="btn" onclick="location.reload()">ПЕРЕЗАГРУЗИТЬ СИСТЕМУ</button>
+    </div>
+
+    <div id="screen-win" class="screen" style="justify-content: center; align-items: center;">
+        <h1 style="color: #fff; text-shadow: 0 0 10px #fff;">НУЛЕВОЙ ДЕНЬ НАСТУПИЛ</h1>
+        <p>Система перезагружена. Данные стерты. Мир свободен.</p>
+        <p>Призрак растворился в сети.</p>
+        <p style="margin-top: 50px; color: #555;">// КОНЕЦ СВЯЗИ</p>
+    </div>
+
+    <div class="status-bar">
+        <div class="progress" id="prog-bar"></div>
+    </div>
+</div>
+
+<script>
+    // GAME STATE
+    let currentStage = 0;
+    const generatedCode = Math.floor(10000 + Math.random() * 90000); // Random 5 digit code
+
+    // SOUND SIMULATION (Visual)
+    function playTypeSound() {
+        // In a real scenario, we'd play audio here.
+    }
+
+    // TYPEWRITER EFFECT
+    function typeWriter(text, elementId, callback) {
+        let i = 0;
+        let speed = 20; 
+        document.getElementById(elementId).innerHTML = "";
+        
+        function type() {
+            if (i < text.length) {
+                document.getElementById(elementId).innerHTML += text.charAt(i);
+                i++;
+                setTimeout(type, speed);
+            } else {
+                if (callback) callback();
+            }
+        }
+        type();
+    }
+
+    function switchScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function updateProgress(percent) {
+        document.getElementById('prog-bar').style.width = percent + '%';
+    }
+
+    function startGame() {
+        switchScreen('screen-1');
+        updateProgress(20);
+        const text = "Входящее соединение... [ШИФРОВАНИЕ: RSA-4096]...\n\nПризрак, ты слышишь? Они нашли бэкдор в твоем протоколе 'Тень'. Через 10 минут спецназ будет у твоей двери. У тебя есть только один шанс: инициировать протокол 'Нулевой День' до того, как они перережут кабель.";
+        typeWriter(text, 'text-1', () => {
+            document.getElementById('controls-1').style.display = 'block';
+        });
+    }
+
+    function nextStage(num) {
+        currentStage = num;
+        updateProgress(num * 20);
+        switchScreen('screen-' + num);
+
+        if (num === 2) {
+            const text = "Соединение установлено. Анонимный контакт 'Архитектор' запрашивает проверку лояльности.\n\nЛюбая ошибка в диалоге приведет к блокировке IP.";
+            typeWriter(text, 'text-2', () => {
+                document.getElementById('controls-2').style.display = 'block';
+            });
+        }
+        
+        if (num === 3) {
+            const text = "Доступ подтвержден. Ты в ядре. Перед тобой панель управления глобальной финансовой сетью. Твои действия необратимы.";
+            typeWriter(text, 'text-3', () => {
+                document.getElementById('controls-3').style.display = 'block';
+            });
+        }
+    }
+
+    function showCode() {
+        const codeDisplay = document.getElementById('code-display');
+        const codeArea = document.getElementById('code-area');
+        
+        codeArea.style.display = 'block';
+        codeDisplay.innerText = generatedCode;
+        
+        // Flash effect
+        let count = 0;
+        const interval = setInterval(() => {
+            codeDisplay.style.opacity = (codeDisplay.style.opacity == '0' ? '1' : '0');
+            count++;
+            if(count > 5) clearInterval(interval);
+        }, 100);
+
+        setTimeout(() => {
+            codeDisplay.style.opacity = '1';
+        }, 600);
+
+        // Hide after 3 seconds and move to next stage
+        setTimeout(() => {
+            codeDisplay.classList.add('hidden-code');
+            setTimeout(() => {
+                nextStage(5);
+            }, 1000);
+        }, 3000);
+    }
+
+    function checkCode() {
+        const input = document.getElementById('final-input').value;
+        if (input === generatedCode.toString()) {
+            switchScreen('screen-win');
+            updateProgress(100);
+        } else {
+            gameOver("НЕВЕРНЫЙ КОД. СИСТЕМА ЗАБЛОКИРОВАНА. ГРУППА ЗАХВАТА ВНУТРИ.");
+        }
+    }
+
+    function gameOver(reason) {
+        switchScreen('screen-fail');
+        document.getElementById('fail-reason').innerText = reason;
+        document.querySelector('.status-bar').style.background = 'red';
+        document.getElementById('prog-bar').style.width = '100%';
+        document.getElementById('prog-bar').style.background = 'red';
+    }
+</script>
+
+</body>
+</html>
